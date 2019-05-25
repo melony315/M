@@ -22,69 +22,69 @@ description: ORC源码
 身份证识别核心源码：
 
       UIImage * image = [UIImage imageNamed:@"abc.png"];
-UIImage * image = [UIImage imageNamed:@"abc.png"];
+      UIImage * image = [UIImage imageNamed:@"abc.png"];
 
-//将UIImage转换成Matcv::Mat resultImage;
+      //将UIImage转换成Matcv::Mat resultImage;
 
-UIImageToMat(image, resultImage);
+      UIImageToMat(image, resultImage);
 
-//转为灰度图
+      //转为灰度图
+      
+      cvtColor(resultImage, resultImage, 6);
+      
+      //利用阈值二值化
+      
+      cv::threshold(resultImage, resultImage, 100, 255, CV_THRESH_BINARY);
 
-cvtColor(resultImage, resultImage, 6);
+      //腐蚀，填充（腐蚀是让黑色点变大）
 
-//利用阈值二值化
+      cv::Mat erodeElement = getStructuringElement(cv::MORPH_RECT, cv::Size(140,140));  
 
-cv::threshold(resultImage, resultImage, 100, 255, CV_THRESH_BINARY);
+      cv::erode(resultImage, resultImage, erodeElement);
 
-//腐蚀，填充（腐蚀是让黑色点变大）
+      //轮廊检测std::vector> contours;
 
-cv::Mat erodeElement = getStructuringElement(cv::MORPH_RECT, cv::Size(140,140));  
+      //定义一个容器来存储所有检测到的轮廊
 
-cv::erode(resultImage, resultImage, erodeElement);
+      cv::findContours(resultImage, contours, CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE, cvPoint(0, 0));
 
-//轮廊检测std::vector> contours;
+      //取出身份证号码区域
 
-//定义一个容器来存储所有检测到的轮廊
+      std::vectorrects;cv::Rect numberRect = cv::Rect(0,0,0,0);  std::vector>::const_iterator itContours = contours.begin();
+      
+      for ( ; itContours != contours.end(); ++itContours) {
 
-cv::findContours(resultImage, contours, CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE, cvPoint(0, 0));
+      cv::Rect rect = cv::boundingRect(*itContours);
+      
+      rects.push_back(rect);
 
-//取出身份证号码区域
+      NSLog(@"位置分别为:x=%d,y=%d,width=%d,height%d",rect.x,rect.y,rect.width,rect.height);
 
-std::vectorrects;cv::Rect numberRect = cv::Rect(0,0,0,0);  std::vector>::const_iterator itContours = contours.begin();
-
-for ( ; itContours != contours.end(); ++itContours) {
-
-cv::Rect rect = cv::boundingRect(*itContours);
-
-rects.push_back(rect);
-
-NSLog(@"位置分别为:x=%d,y=%d,width=%d,height%d",rect.x,rect.y,rect.width,rect.height);
-
-//算法原理：如果新的区域范围宽度大于已赋值区域宽度，并且宽度为高度的五倍则赋予新值
+      //算法原理：如果新的区域范围宽度大于已赋值区域宽度，并且宽度为高度的五倍则赋予新值
 
        if (rect.width > numberRect.width && rect.width > rect.height * 5 && rect.height > 200 && rect.height < 300) {
 
        numberRect = rect;
 
        }
-
+      
 }
+      
+      //定位成功成功，去原图截取身份证号码区域，并转换成灰度图、进行二值化处理
+      
+      cv::Mat matImage;
+      
+      UIImageToMat(image, matImage);
+      
+      resultImage = matImage(numberRect);
+      
+      cvtColor(resultImage, resultImage, cv::COLOR_BGR2GRAY);
 
-//定位成功成功，去原图截取身份证号码区域，并转换成灰度图、进行二值化处理
+      cv::threshold(resultImage, resultImage, 80, 255, CV_THRESH_BINARY);
 
-cv::Mat matImage;
+      //将Mat转换成UIImage
 
-UIImageToMat(image, matImage);
-
-resultImage = matImage(numberRect);
-
-cvtColor(resultImage, resultImage, cv::COLOR_BGR2GRAY);
-
-cv::threshold(resultImage, resultImage, 80, 255, CV_THRESH_BINARY);
-
-//将Mat转换成UIImage
-
-UIImage *numberImage = MatToUIImage(resultImage);
+      UIImage *numberImage = MatToUIImage(resultImage);
       
 
 ## 后记
