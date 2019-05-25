@@ -1,8 +1,8 @@
 ---
 layout:     post
-title:      Hello,2019
+title:      Hello,2019.
 category: blog
-description: Hello World,Hello Blog
+description: Hello World,Hello Blog.
 ---
 
 > “Yeah It's on. ”
