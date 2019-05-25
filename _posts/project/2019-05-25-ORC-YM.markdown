@@ -21,7 +21,7 @@ description: ORC源码
 
 身份证识别核心源码：
 
-``````UIImage * image = [UIImage imageNamed:@"abc.png"];
+      UIImage * image = [UIImage imageNamed:@"abc.png"];
 UIImage * image = [UIImage imageNamed:@"abc.png"];
 
 //将UIImage转换成Matcv::Mat resultImage;
@@ -85,7 +85,7 @@ cv::threshold(resultImage, resultImage, 80, 255, CV_THRESH_BINARY);
 //将Mat转换成UIImage
 
 UIImage *numberImage = MatToUIImage(resultImage);
-``````
+      
 
 ## 后记
 
