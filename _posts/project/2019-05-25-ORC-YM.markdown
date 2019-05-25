@@ -1,0 +1,95 @@
+---
+layout:     post
+title:      如何优化PNG，JPG图片减小图片文件大小。
+category: project
+description: ORC源码
+---
+
+> “工程笔记”
+
+## 前言
+
+[跳过废话，直接看技术实现 ](#build) 
+
+最近项目用到身份证识别，在github上搜了一堆demo，在Google上找了一堆代码，有能识别出证件照的，但是都是打包成.a的静态库，没有源码，我努力吃了几天书，有了一点研究成果，现在贴出来与大家分享，要是有更好的方法，希望大神指正，共同探讨解决方案。（以下代码本人亲测可用，正在进一步探索智能识别，如有兴趣，请加入）
+
+
+<p id = "build"></p>
+---
+
+## 正文
+
+身份证识别核心源码：
+
+``````UIImage * image = [UIImage imageNamed:@"abc.png"];
+UIImage * image = [UIImage imageNamed:@"abc.png"];
+
+//将UIImage转换成Matcv::Mat resultImage;
+
+UIImageToMat(image, resultImage);
+
+//转为灰度图
+
+cvtColor(resultImage, resultImage, 6);
+
+//利用阈值二值化
+
+cv::threshold(resultImage, resultImage, 100, 255, CV_THRESH_BINARY);
+
+//腐蚀，填充（腐蚀是让黑色点变大）
+
+cv::Mat erodeElement = getStructuringElement(cv::MORPH_RECT, cv::Size(140,140));  
+
+cv::erode(resultImage, resultImage, erodeElement);
+
+//轮廊检测std::vector> contours;
+
+//定义一个容器来存储所有检测到的轮廊
+
+cv::findContours(resultImage, contours, CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE, cvPoint(0, 0));
+
+//取出身份证号码区域
+
+std::vectorrects;cv::Rect numberRect = cv::Rect(0,0,0,0);  std::vector>::const_iterator itContours = contours.begin();
+
+for ( ; itContours != contours.end(); ++itContours) {
+
+cv::Rect rect = cv::boundingRect(*itContours);
+
+rects.push_back(rect);
+
+NSLog(@"位置分别为:x=%d,y=%d,width=%d,height%d",rect.x,rect.y,rect.width,rect.height);
+
+//算法原理：如果新的区域范围宽度大于已赋值区域宽度，并且宽度为高度的五倍则赋予新值
+
+       if (rect.width > numberRect.width && rect.width > rect.height * 5 && rect.height > 200 && rect.height < 300) {
+
+       numberRect = rect;
+
+       }
+
+}
+
+//定位成功成功，去原图截取身份证号码区域，并转换成灰度图、进行二值化处理
+
+cv::Mat matImage;
+
+UIImageToMat(image, matImage);
+
+resultImage = matImage(numberRect);
+
+cvtColor(resultImage, resultImage, cv::COLOR_BGR2GRAY);
+
+cv::threshold(resultImage, resultImage, 80, 255, CV_THRESH_BINARY);
+
+//将Mat转换成UIImage
+
+UIImage *numberImage = MatToUIImage(resultImage);
+``````
+
+## 后记
+
+这里用到了两个开源库：OpenCV、TesseractOCRiOS,两个语言包chi_sim、eng。身份证识别的流程主要有：灰度化，阀值二值化，腐蚀，轮廓检测，取出身份证号码区域，TesseractOCR识别文字。
+
+
+
