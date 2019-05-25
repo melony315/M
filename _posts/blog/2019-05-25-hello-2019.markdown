@@ -1,14 +1,8 @@
 ---
 layout:     post
-title:      "Hello 2019"
-subtitle:   " \"Hello World, Hello Blog\""
-date:       2019-05-25 20:00:00
-author:     "M"
-header-img: 
-catalog: true
-tags:
-    - 生活
-    - Meta
+title:      Hello,2019
+category: blog
+description: Hello World,Hello Blog
 ---
 
 > “Yeah It's on. ”
