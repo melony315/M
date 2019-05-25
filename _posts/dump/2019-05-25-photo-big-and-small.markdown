@@ -2,7 +2,7 @@
 layout:     post
 title:      如何优化PNG，JPG图片减小图片文件大小。
 category: dump
-description: Hello World,Hello Blog.
+description: 关于图片的一点小心得
 ---
 
 > “日常笔记”
