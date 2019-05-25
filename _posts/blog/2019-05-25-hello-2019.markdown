@@ -5,7 +5,7 @@ category: blog
 description: Hello World,Hello Blog.
 ---
 
-> “Yeah It's on. ”
+> “Hello World,Hello Blog.”
 
 
 ## 前言
